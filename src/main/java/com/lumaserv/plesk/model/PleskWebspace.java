@@ -33,7 +33,7 @@ public class PleskWebspace {
     Date createdAt;
     String overuse;
     VirtualHost virtualHost;
-    Map<String, Integer> limits;
+    Map<String, Long> limits;
 
     public PleskWebspace(XMLElement element) {
         this.id = element.findIntOf("id");
@@ -55,7 +55,7 @@ public class PleskWebspace {
         XMLElement limits = element.findFirst("data").findFirst("limits");
         if(limits != null) {
             this.overuse = limits.findTextOf("overuse");
-            this.limits = limits.find("limit").stream().collect(Collectors.toMap(l -> l.findTextOf("name"), l -> l.findIntOf("value")));
+            this.limits = limits.find("limit").stream().collect(Collectors.toMap(l -> l.findTextOf("name"), l -> l.findLongOf("value")));
         }
         XMLElement hosting = element.findFirst("data").findFirst("hosting");
         if(hosting != null) {

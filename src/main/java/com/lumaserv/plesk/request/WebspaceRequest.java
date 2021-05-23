@@ -28,7 +28,7 @@ public class WebspaceRequest implements Request<PleskWebspace> {
     Map<String, String> virtualHostProperties;
     String virtualHostIpAddress;
     String limitOveruse;
-    Map<String, Integer> limits;
+    Map<String, Long> limits;
 
     public Class<PleskWebspace> getModel() {
         return PleskWebspace.class;
