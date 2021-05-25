@@ -1,6 +1,7 @@
 package com.lumaserv.plesk;
 
 import com.lumaserv.plesk.apis.CustomerAPI;
+import com.lumaserv.plesk.apis.ServerAPI;
 import com.lumaserv.plesk.apis.WebspaceAPI;
 import com.lumaserv.plesk.filter.Filter;
 import com.lumaserv.plesk.request.Request;
@@ -19,6 +20,7 @@ public class PleskAPI {
     final String host;
     final CustomerAPI customer = new CustomerAPI(this);
     final WebspaceAPI webspace = new WebspaceAPI(this);
+    final ServerAPI server = new ServerAPI(this);
 
     public PleskAPI(String host, String username, String password) {
         this.host = host;
@@ -37,6 +39,10 @@ public class PleskAPI {
 
     public WebspaceAPI webspace() {
         return webspace;
+    }
+
+    public ServerAPI server() {
+        return server;
     }
 
     public <T> List<T> get(Class<T> model, Function<XMLElement, T> constructor, Filter<T> filter, String... dataset) throws PleskAPIException {
@@ -88,7 +94,7 @@ public class PleskAPI {
                 throw new PleskAPIException(Integer.parseInt(c.findFirst("errcode").text()), c.findFirst("errtext").text());
             return null;
         }
-        return c.children().get(0).children();
+        return errorCheck(c.children().get(0).children());
     }
 
     public static String toKebabCase(String source) {
