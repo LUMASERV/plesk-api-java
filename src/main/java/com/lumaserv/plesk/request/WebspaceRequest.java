@@ -69,10 +69,10 @@ public class WebspaceRequest implements Request<PleskWebspace> {
         }
         if(this.getLimitOveruse() != null || this.getLimits() != null) {
             parent.add("limits", limits -> {
-                if(this.getLimits() != null)
-                    this.getLimits().forEach((k, v) -> limits.add("limit", prop -> prop.add("name", k).add("value", String.valueOf(v))));
                 if(this.getLimitOveruse() != null)
                     limits.add("overuse", this.getLimitOveruse());
+                if(this.getLimits() != null)
+                    this.getLimits().forEach((k, v) -> limits.add("limit", prop -> prop.add("name", k).add("value", String.valueOf(v))));
             });
         }
         if(this.getPlanId() != null)

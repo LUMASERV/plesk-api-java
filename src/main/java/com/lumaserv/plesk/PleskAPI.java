@@ -23,6 +23,7 @@ public class PleskAPI {
     public PleskAPI(String host, String username, String password) {
         this.host = host;
         client.header("HTTP_AUTH_LOGIN", username).header("HTTP_AUTH_PASSWD", password);
+        client.timeout(15000);
     }
 
     public PleskAPI(String host, String key) {
@@ -39,28 +40,42 @@ public class PleskAPI {
     }
 
     public <T> List<T> get(Class<T> model, Function<XMLElement, T> constructor, Filter<T> filter, String... dataset) throws PleskAPIException {
-        return request(toKebabCase(model.getSimpleName().substring(5)), "get", e -> {
+        return errorCheck(request(toKebabCase(model.getSimpleName().substring(5)), "get", e -> {
             e.add("filter", filter::apply);
             if(dataset.length > 0)
                 e.add("dataset", e2 -> {
                     for(String f : dataset) e2.add(f);
                 });
-        }).stream().map(constructor).collect(Collectors.toList());
+        })).stream().map(constructor).collect(Collectors.toList());
     }
 
     public <T> int add(Request<T> request) throws PleskAPIException {
-        XMLElement res = request(toKebabCase(request.getModel().getSimpleName().substring(5)), "add", request::toXml).stream().findFirst().orElse(null);
+        XMLElement res = errorCheck(request(toKebabCase(request.getModel().getSimpleName().substring(5)), "add", request::toXml)).stream().findFirst().orElse(null);
         if(res == null)
             return 0;
         return res.findIntOf("id");
     }
 
     public <T> void set(Filter<T> filter, Request<T> request) throws PleskAPIException {
-        request(toKebabCase(request.getModel().getSimpleName().substring(5)), "set", set -> set.add("filter", filter::apply).add("values", request::toXml));
+        errorCheck(request(toKebabCase(request.getModel().getSimpleName().substring(5)), "set", set -> set.add("filter", filter::apply).add("values", request::toXml)));
     }
 
     public <T> void del(Class<T> model, Filter<T> filter) throws PleskAPIException {
-        request(toKebabCase(model.getSimpleName().substring(5)), "del", e -> e.add("filter", filter::apply));
+        errorCheck(request(toKebabCase(model.getSimpleName().substring(5)), "del", e -> e.add("filter", filter::apply)));
+    }
+
+    private List<XMLElement> errorCheck(List<XMLElement> results) throws PleskAPIException {
+        for(XMLElement r : results)
+            errorCheck(r);
+        return results;
+    }
+
+    private XMLElement errorCheck(XMLElement result) throws PleskAPIException {
+        if(result == null)
+            throw new PleskAPIException(0, "bad response");
+        if("ok".equals(result.findTextOf("status")))
+            return result;
+        throw new PleskAPIException(result.findIntOf("errcode"), result.findTextOf("errtext"));
     }
 
     public List<XMLElement> request(String operator, String operation, Consumer<XMLElement> body) throws PleskAPIException {

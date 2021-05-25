@@ -33,14 +33,12 @@ public class CustomerRequest implements Request<PleskCustomer> {
 
     public void toXml(XMLElement parent) {
         parent.add("gen_info", info -> {
-            if(this.getName() != null)
-                info.add("pname", this.getName());
             if(this.getCompany() != null)
                 info.add("cname", this.getCompany());
+            if(this.getName() != null)
+                info.add("pname", this.getName());
             if(this.getLogin() != null)
                 info.add("login", this.getLogin());
-            if(this.getEmail() != null)
-                info.add("email", this.getEmail());
             if(this.getPassword() != null)
                 info.add("passwd", this.getPassword());
             if(this.getStatus() != null)
@@ -49,6 +47,8 @@ public class CustomerRequest implements Request<PleskCustomer> {
                 info.add("phone", this.getPhone());
             if(this.getFax() != null)
                 info.add("fax", this.getFax());
+            if(this.getEmail() != null)
+                info.add("email", this.getEmail());
             if(this.getAddress() != null)
                 info.add("address", this.getAddress());
             if(this.getCity() != null)
